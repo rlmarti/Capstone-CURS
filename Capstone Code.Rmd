@@ -1,0 +1,407 @@
+---
+title: "510 CASES"
+author: "Rachel Martin"
+date: "9/11/2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(plyr)
+library(mudata2)
+library(dplyr)
+library(ggplot2)
+library(ggExtra)
+library(ggridges)
+library(tidyverse)
+library(na.tools)
+```
+
+```{r}
+cases <- read.csv("cases.csv")
+```
+
+#HYPOTHESIS 1 MEASURES
+
+
+##Article mentions
+
+```{r}
+all.sheet <- cases %>% select(RCsheet, MDsheet, JHsheet, DKsheet, BOsheet, CPsheet, JRsheet, JSsheet, BSsheet, MTsheet, NWsheet)
+colSums(all.sheet == "yes")
+```
+
+
+```{r}
+names <- c("Corday", "DeWine", "Husted", "Kucinich", "O'Neill", "Pillich", "Renacci", "Schiavoni", "Sutton", "Taylor", "Whaley")
+names
+article <- c(187, 284, 104, 138, 193, 184, 158, 278, 145, 299, 121)
+article
+df <- data.frame(names = names, article = article)
+```
+
+
+
+
+```{r}
+df <- data.frame(names = names, article = article)
+ggplot(df, aes(x=reorder(names, -article), y=article)) +
+  geom_segment( aes(x=reorder(names, -article), xend=names, y=0, yend=article)) +
+  geom_point( size=5, color="red", fill=alpha("blue", 0.3), alpha=0.7, shape=21, stroke=2) + labs(x = "Candidates", y = "# of Articles", title = "Article Quantity Among Candidates")
+```
+
+
+##Sentence quantity
+
+```{r}
+all.sen <- cases %>% select(RCnum_sen, MDnum_sen, JHnum_sen, DKnum_sen, BOnum_sen, CPnum_sen, JRnum_sen, JSnum_sen, BSnum_sen, MTnum_sen, NWnum_sen)
+all.sen[is.na(all.sen)] <- 0 
+
+colSums(all.sen)
+names
+sen <- c(1490, 2043, 586, 1059, 1285, 519, 653, 886, 395, 2006, 465)
+sen
+df1 <- data.frame(names = names, sen = sen)
+ggplot(df1, aes(x=reorder(names, -sen), y=sen)) + geom_col(fill=rgb(11:1/11,0,0),) + labs(x = "Candidates", y = "# of Sentences", title = "Sentence Quantity Among Candidates")
+```
+
+
+##headline mentions
+
+```{r}
+all.head <- cases %>% select(RChead, MDhead, JHhead, DKhead, BOhead, CPhead, JRhead, JShead, BShead, MThead, NWhead)
+table(all.head$RChead)
+table(all.head$MDhead)
+table(all.head$JHhead)
+table(all.head$DKhead)
+table(all.head$BOhead)
+table(all.head$CPhead)
+table(all.head$JRhead)
+table(all.head$JShead) 
+table(all.head$BShead)
+table(all.head$MThead)
+table(all.head$NWhead)
+```
+
+```{r}
+names
+head <- c(69, 88, 23, 51, 47, 22, 27, 27, 17, 80, 17)
+head
+df4 <- data.frame(names = names, head = head)
+ggplot(df4, aes(x=reorder(names, -head), y=head)) + geom_col(fill = rgb(0, 0 ,11:1/11)) + labs(x = "Candidates", y = "# of Headline Mentions", title = "Headline Mention Quantity Among Candidates")
+```
+
+
+
+
+
+#HYPOTHESIS 2 MEASURES
+
+##tone of articles 
+
+```{r}
+all.tone <- cases %>% select(RCtone, MDtone, JHtone, DKtone, BOtone, CPtone, JRtone, JStone, BStone, MTtone, NWtone)
+table(all.tone$RCtone)
+table(all.tone$MDtone)
+table(all.tone$JHtone)
+table(all.tone$DKtone)
+table(all.tone$BOtone)
+table(all.tone$CPtone)
+table(all.tone$JRtone)
+table(all.tone$JStone) 
+table(all.tone$BStone)
+table(all.tone$MTtone)
+table(all.tone$NWtone)
+```
+
+```{r}
+names
+tone <- c(58, 64, 26, 25, 9, 17, 17, 28, 15, 44, 16)
+tone
+df5 <- data.frame(names = names, tone = tone)
+ggplot(df5, aes(names, tone)) + geom_col()
+pie(tone, names, main = "Positive Tone Among Candidates", col = rainbow(length(tone)))
+```
+
+
+
+##headline tone of articles (only out of articles mentioned and mentioned in the headline)
+
+```{r}
+all.head.tone <- cases %>% select(RChead_tone, MDhead_tone, JHhead_tone, DKhead_tone, BOhead_tone, CPhead_tone, JRhead_tone, JShead_tone, BShead_tone, MThead_tone, NWhead_tone)
+table(all.head.tone$RChead_tone)
+table(all.head.tone$MDhead_tone)
+table(all.head.tone$JHhead_tone)
+table(all.head.tone$DKhead_tone)
+table(all.head.tone$BOhead_tone)
+table(all.head.tone$CPhead_tone)
+table(all.head.tone$JRhead_tone)
+table(all.head.tone$JShead_tone) 
+table(all.head.tone$BShead_tone)
+table(all.head.tone$MThead_tone)
+table(all.head.tone$NWhead_tone)
+```
+
+```{r}
+names
+head.tone <- c(26, 24,5,12,1,4,2,6,5,15,5)
+head.tone
+df4 <- data.frame(names = names, head.tone = head.tone)
+ggplot(df4, aes(names, head.tone)) + geom_col()
+pie(head.tone, names, main = "Positive Headline Tone Among Candidates", col = rainbow(length(tone)))
+```
+
+
+
+
+
+#HYPOTHESIS 3 MEASURES
+
+##qualifications
+
+```{r}
+all.qual <- cases %>% select(RCqual, MDqual, JHqual, DKqual, BOqual, CPqual, JRqual, JSqual, BSqual, MTqual, NWqual)
+table(all.qual$RCqual)
+table(all.qual$MDqual)
+table(all.qual$JHqual)
+table(all.qual$DKqual)
+table(all.qual$BOqual)
+table(all.qual$CPqual)
+table(all.qual$JRqual)
+table(all.qual$JSqual) 
+table(all.qual$BSqual)
+table(all.qual$MTqual)
+table(all.qual$NWqual)
+```
+
+```{r}
+names
+qual <- c(110, 91, 26, 69, 56, 23, 32, 33, 19, 73, 13)
+qual
+df2 <- data.frame(names = names, qual = qual)
+ggplot(df2, aes(x=reorder(names, -qual), y=qual)) +
+  geom_segment( aes(x=reorder(names, -qual), xend=names, y=0, yend=qual)) +
+  geom_point( size=5, color="red", fill=alpha("blue", 0.3), alpha=0.7, shape=21, stroke=2) + labs(x = "Candidates", y = "# of Qualifications", title = "Qualification Quantity Among Candidates")
+```
+
+
+
+HYPOTHESIS 4 MEASURES
+
+##positive traits
+
+```{r}
+all.pos <- cases %>% select(RCpos, MDpos, JHpos, DKpos, BOpos, CPpos, JRpos, JSpos, BSpos, MTpos, NWpos)
+table(all.pos$RCpos)
+table(all.pos$MDpos)
+table(all.pos$JHpos)
+table(all.pos$DKpos)
+table(all.pos$BOpos)
+table(all.pos$CPpos)
+table(all.pos$JRpos)
+table(all.pos$JSpos) 
+table(all.pos$BSpos)
+table(all.pos$MTpos)
+table(all.pos$NWpos)
+```
+
+```{r}
+names
+pos <- c(106, 140, 35, 47, 22, 29, 37, 54, 21, 100, 20)
+pos
+df3 <- data.frame(names = names, pos = pos)
+ggplot(df3, aes(x=reorder(names, -pos), y= pos)) + geom_col(fill=rgb(11:1/11,0,0),) +labs(x = "Candidates", y = "# of Positive Traits", title = "Positive Trait Quantity Among Candidates")
+```
+
+```{r}
+cases %>% select(MDpos,
+                MDpos1,
+                MDpos2,
+                MDpos3,
+                MDneg,
+                MDneg1,
+                MDneg2,
+                MDneg3,
+                RCpos,
+                RCpos1,
+                RCpos2,
+                RCpos3,
+                RCneg,
+                RCneg1,
+                RCneg2,
+                RCneg3,
+                MTpos,
+                MTpos1,
+                MTpos2,
+                MTpos3,
+                MTneg,
+                MTneg1,
+                MTneg2,
+                MTneg3,
+                 ) -> c2
+c2$MDpos <- ifelse(c2$MDpos == "yes", 1, 0)
+c2[is.na(c2)] <- 0
+
+
+#change pos1 to 1 if it exists
+c2$MDpos1 <- as.numeric(c2$MDpos1)
+c2$MDpos1 <- ifelse(c2$MDpos1 == 1, 0, 1)
+
+#change pos2 to 1 if it exists
+c2$MDpos2 <- as.numeric(c2$MDpos2)
+c2$MDpos2 <- ifelse(c2$MDpos2 == 1, 0, 1)
+
+#change pos3 to 1 if it exists
+c2$MDpos3 <- as.numeric(c2$MDpos3)
+c2$MDpos3 <- ifelse(c2$MDpos3 == 1, 0, 1)
+
+#Create a sum of the positive traits
+c2$MDpossum <- c2$MDpos1 + c2$MDpos2 + c2$MDpos3
+
+#Change the numbers indicating if a negative trait is mentioned at all
+c2$MDneg <- ifelse(c2$MDneg == 2, 1, 0)
+
+#change neg1 to 1 if it exists
+c2$MDneg1 <- as.numeric(c2$MDneg1)
+c2$MDneg1 <- ifelse(c2$MDneg1 == 1, 0, -1)
+
+#change neg2 to 2 if it exists
+c2$MDneg2 <- as.numeric(c2$MDneg2)
+c2$MDneg2 <- ifelse(c2$MDneg2 == 1, 0, -1)
+
+#change neg3 to 3 if it exists
+c2$MDneg3 <- as.numeric(c2$MDneg3)
+c2$MDneg3 <- ifelse(c2$MDneg3 == 1, 0, -1)
+
+#Create a sum of all the negative traits
+c2$MDnegsum <- c2$MDneg1 + c2$MDneg2 + c2$MDneg3
+
+#Combine the positive and negative sums
+c2$MDbothsum <- c2$MDpossum + c2$MDnegsum
+
+#Cumulative sum variable
+c2$MDoverallsum <- cumsum(c2$MDbothsum)
+
+#Create a indicator variable for each article
+c2$article <- c(1:510)
+
+#Plot the article and overall sums
+
+```
+```{r}
+c2$MTpos <- ifelse(c2$MTpos == "yes", 1, 0)
+c2[is.na(c2)] <- 0
+
+
+#change pos1 to 1 if it exists
+c2$MTpos1 <- as.numeric(c2$MTpos1)
+c2$MTpos1 <- ifelse(c2$MTpos1 == 1, 0, 1)
+
+#change pos2 to 1 if it exists
+c2$MTpos2 <- as.numeric(c2$MTpos2)
+c2$MTpos2 <- ifelse(c2$MTpos2 == 1, 0, 1)
+
+#change pos3 to 1 if it exists
+c2$MTpos3 <- as.numeric(c2$MTpos3)
+c2$MTpos3 <- ifelse(c2$MTpos3 == 1, 0, 1)
+
+#Create a sum of the positive traits
+c2$MTpossum <- c2$MTpos1 + c2$MTpos2 + c2$MTpos3
+
+#Change the numbers indicating if a negative trait is mentioned at all
+c2$MTneg <- ifelse(c2$MTneg == 2, 1, 0)
+
+#change neg1 to 1 if it exists
+c2$MTneg1 <- as.numeric(c2$MTneg1)
+c2$MTneg1 <- ifelse(c2$MTneg1 == 1, 0, -1)
+
+#change neg2 to 2 if it exists
+c2$MTneg2 <- as.numeric(c2$MTneg2)
+c2$MTneg2 <- ifelse(c2$MTneg2 == 1, 0, -1)
+
+#change neg3 to 3 if it exists
+c2$MTneg3 <- as.numeric(c2$MTneg3)
+c2$MTneg3 <- ifelse(c2$MTneg3 == 1, 0, -1)
+
+#Create a sum of all the negative traits
+c2$MTnegsum <- c2$MTneg1 + c2$MTneg2 + c2$MTneg3
+
+#Combine the positive and negative sums
+c2$MTbothsum <- c2$MTpossum + c2$MTnegsum
+
+#Cumulative sum variable
+c2$MToverallsum <- cumsum(c2$MTbothsum)
+
+#Create a indicator variable for each article
+c2$article <- c(1:510)
+
+#Plot the article and overall sums
+
+```
+
+
+```{r}
+c2$RCpos <- ifelse(c2$RCpos == "yes", 1, 0)
+c2[is.na(c2)] <- 0
+
+
+#change pos1 to 1 if it exists
+c2$RCpos1 <- as.numeric(c2$RCpos1)
+c2$RCpos1 <- ifelse(c2$RCpos1 == 1, 0, 1)
+
+#change pos2 to 1 if it exists
+c2$RCpos2 <- as.numeric(c2$RCpos2)
+c2$RCpos2 <- ifelse(c2$RCpos2 == 1, 0, 1)
+
+#change pos3 to 1 if it exists
+c2$RCpos3 <- as.numeric(c2$RCpos3)
+c2$RCpos3 <- ifelse(c2$RCpos3 == 1, 0, 1)
+
+#Create a sum of the positive traits
+c2$RCpossum <- c2$RCpos1 + c2$RCpos2 + c2$RCpos3
+
+#Change the numbers indicating if a negative trait is mentioned at all
+c2$RCneg <- ifelse(c2$RCneg == 2, 1, 0)
+
+#change neg1 to 1 if it exists
+c2$RCneg1 <- as.numeric(c2$RCneg1)
+c2$RCneg1 <- ifelse(c2$RCneg1 == 1, 0, -1)
+
+#change neg2 to 2 if it exists
+c2$RCneg2 <- as.numeric(c2$RCneg2)
+c2$RCneg2 <- ifelse(c2$RCneg2 == 1, 0, -1)
+
+#change neg3 to 3 if it exists
+c2$RCneg3 <- as.numeric(c2$RCneg3)
+c2$RCneg3 <- ifelse(c2$RCneg3 == 1, 0, -1)
+
+#Create a sum of all the negative traits
+c2$RCnegsum <- c2$RCneg1 + c2$RCneg2 + c2$RCneg3
+
+#Combine the positive and negative sums
+c2$RCbothsum <- c2$RCpossum + c2$RCnegsum
+
+#Cumulative sum variable
+c2$RCoverallsum <- cumsum(c2$RCbothsum)
+
+#Create a indicator variable for each article
+c2$article <- c(1:510)
+
+#Plot the article and overall sums
+
+```
+
+```{r}
+ggplot(c2) + geom_line(aes(article, MDoverallsum), col = "red") + geom_line(aes(article, RCoverallsum), color = 'blue') + geom_line(aes(article, MToverallsum), col = "green")+ labs(x = "Article", y = "Quality Points",  title = "Candidate Overall Quality Points") + theme(
+    legend.position = c(0.9, 0.9),
+    legend.justification = c("left", "top"))
+```
+
+
+
